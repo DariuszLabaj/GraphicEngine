@@ -1,11 +1,13 @@
 from __future__ import annotations
 from math import ceil
-from typing import Optional, Tuple
+from typing import Callable, Literal, Optional, Tuple
 from abc import ABC, abstractmethod
 import pygame
 from GraphicEngine.constrain import constrain
 from GraphicEngine.mathMap import mathMap
 from GraphicEngine.random2DVector import random2DVector
+from GraphicEngine._baseButton import _BaseButton
+from GraphicEngine._textInput import _TextInput
 
 
 class PygameGFX(ABC):
@@ -41,6 +43,60 @@ class PygameGFX(ABC):
     def mousePosition(self):
         self.__mousePosition = pygame.mouse.get_pos()
         return self.__mousePosition
+
+    class Button(_BaseButton):
+        def __init__(
+            self,
+            surface: pygame.Surface,
+            rect: pygame._common._RectValue,
+            command: Callable[[], None] | None = None,
+            label: str = "Button",
+            padx: int = 0,
+            pady: int = 0,
+            font: str = None,
+            background: pygame._common._ColorValue = (0xEF, 0xEF, 0xEF),
+            foreground: pygame._common._ColorValue = (0x00, 0x00, 0x00),
+            activeBackground: pygame._common._ColorValue = (0x8D, 0x8D, 0x8D),
+            activeForeground: pygame._common._ColorValue = (0x00, 0x00, 0x00),
+            justify: Literal["LEFT"] | Literal["CENTER"] | Literal["RIGHT"] = "CENTER",
+        ):
+            super(PygameGFX.Button, self).__init__(
+                surface,
+                rect,
+                command,
+                background,
+                foreground,
+                activeBackground,
+                activeForeground,
+                label,
+                justify,
+                font,
+                padx,
+                pady,
+            )
+
+        def update(self):
+            super().update()
+
+        def show(self):
+            super().show()
+
+    class TextInput(_TextInput):
+        def __init__(
+            self,
+            surface: pygame.Surface,
+            rect: pygame.Rect,
+            text: str,
+            background: pygame._common._ColorValue = (255, 255, 255),
+            foreground: pygame._common._ColorValue = (0, 0, 0),
+            justify: Literal["LEFT"] | Literal["CENTER"] | Literal["RIGHT"] = "CENTER",
+            font: pygame.font.Font = None,
+            padx: int = 0,
+            pady: int = 0,
+        ):
+            super(PygameGFX.TextInput, self).__init__(
+                surface, rect, text, background, foreground, justify, font, padx, pady
+            )
 
     def __init__(
         self,
@@ -98,7 +154,7 @@ class PygameGFX(ABC):
 
     def Run(self):
         pygame.init()
-        self.__font = pygame.font.SysFont(None, 24)
+        self.setFont()
         self.Setup()
         while self.IsRunning:
             self._checkForEvents()
@@ -123,8 +179,38 @@ class PygameGFX(ABC):
         else:
             self.__displaySufrace.fill((r, r, r))
 
-    def drawText(self, text: str, color: pygame.Color):
-        self.DisplaySurface.blit(self.__font.render(text, True, color), (20, 20))
+    def setFont(self, fontName: str | None = None, fontSize: int = 24):
+        self.__font = pygame.font.SysFont(fontName, fontSize)
+
+    def drawText(
+        self,
+        text: str,
+        color: pygame._common._ColorValue,
+        position: pygame._common._Coordinate = (20, 20),
+        allowedWidth: int = None,
+    ):
+        if allowedWidth is None:
+            allowedWidth = self.Width - position[0] - 10
+        words = text.split()
+        lines = []
+        while len(words) > 0:
+            line_words = []
+            while len(words) > 0:
+                line_words.append(words.pop(0))
+                fontWidth, _ = self.__font.size(" ".join(line_words + words[:1]))
+                if fontWidth > allowedWidth:
+                    break
+            lines.append(" ".join(line_words))
+        y_offset = 0
+        for line in lines:
+            fontWidth, fontHeight = self.__font.size(line)
+            textX = position[0]  # - fontWidth/2 Center
+            textY = position[1] + y_offset
+            self.DisplaySurface.blit(
+                self.__font.render(line, True, color), (textX, textY)
+            )
+            y_offset += fontHeight
+        return position[1] + y_offset
 
     def drawPixel(self, color: pygame.Color, pos: Tuple[int, int]):
         if isinstance(color, float):
