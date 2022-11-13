@@ -5,32 +5,18 @@ from abc import ABC, abstractmethod
 from typing import Callable, Literal, Optional, Tuple
 
 import pygame
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_LESS,
-    GL_LINE_SMOOTH,
-    GL_LINE_SMOOTH_HINT,
-    GL_NICEST,
-    GL_SMOOTH,
-    glClear,
-    glClearColor,
-    glClearDepth,
-    glDepthFunc,
-    glEnable,
-    glHint,
-    glRotatef,
-    glShadeModel,
-    glTranslatef,
-)
+from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST,
+                       GL_LESS, GL_LINE_SMOOTH, GL_LINE_SMOOTH_HINT, GL_NICEST,
+                       GL_SMOOTH, glClear, glClearColor, glClearDepth,
+                       glDepthFunc, glEnable, glHint, glRotatef, glShadeModel,
+                       glTranslatef)
 from OpenGL.GLU import gluPerspective
 
 import GraphicEngine.shapes as shapes
 from GraphicEngine._baseButton import _BaseButton
 from GraphicEngine._common import _Direction, deprecate
-from GraphicEngine._textInput import _TextInput
 from GraphicEngine._processColor import getColor_Int
+from GraphicEngine._textInput import _TextInput
 
 warnings.simplefilter("once", category=(PendingDeprecationWarning, DeprecationWarning))
 
@@ -186,7 +172,7 @@ class PygameGFX(ABC):
         self.__running = False
 
     def setPerspective(
-        self, fieldOfView: int = None, near: float = 0.1, far: float = 100.0
+        self, fieldOfView: int = None, near: float = 0.1, far: float = None
     ):
         """
         Only for OpenGL
@@ -196,7 +182,7 @@ class PygameGFX(ABC):
         if fieldOfView:
             self.fieldOfView = fieldOfView
         nearVal = 0.1 if near is None else near
-        farVal = 100 if far is None else far
+        farVal = max([self.Width, self.Height]) * 2 if far is None else far
         gluPerspective(self.fieldOfView, self.aspectRatio, nearVal, farVal)
 
     def translate(self, x: float, y: float, z: float):
@@ -227,6 +213,7 @@ class PygameGFX(ABC):
             glDepthFunc(GL_LESS)
             glEnable(GL_DEPTH_TEST)
             glShadeModel(GL_SMOOTH)
+            self.setPerspective()
         self.Setup()
         while self.IsRunning:
             self._checkForEvents()
@@ -281,9 +268,7 @@ class PygameGFX(ABC):
             self.DisplaySurface, self.__font, text, color, position, allowedWidth
         )
 
-    @deprecate(
-        "This function will be deprecated in the future. Use drawShapes.Pixel()."
-    )
+    @deprecate("This function will be deprecated in the future. Use drawShapes.Pixel().")
     def drawPixel(
         self, color: pygame._common._ColorValue | float, pos: pygame._common._Coordinate
     ):
@@ -302,9 +287,7 @@ class PygameGFX(ABC):
             self.DisplaySurface, rect, color, startAngle, stopAngle, width
         )
 
-    @deprecate(
-        "This function will be deprecated in the future. Use drawShapes.Circle()."
-    )
+    @deprecate("This function will be deprecated in the future. Use drawShapes.Circle().")
     def drawCircle(
         self,
         center: pygame._common._Coordinate,
@@ -314,9 +297,7 @@ class PygameGFX(ABC):
     ):
         self.drawShapes.Circle(self.DisplaySurface, center, radius, color, width)
 
-    @deprecate(
-        "This function will be deprecated in the future. Use drawShapes.Ellipse()."
-    )
+    @deprecate("This function will be deprecated in the future. Use drawShapes.Ellipse().")
     def drawEllipse(
         self, rect: pygame.Rect, color: pygame._common._ColorValue, width: int = 0
     ):
