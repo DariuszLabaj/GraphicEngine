@@ -1,6 +1,2 @@
 def constrain(value: float, lowLimit: float, highLimit: float):
-    if value <= lowLimit:
-        return lowLimit
-    if value >= highLimit:
-        return highLimit
-    return value
+    return lowLimit if value < lowLimit else highLimit if value > highLimit else value
