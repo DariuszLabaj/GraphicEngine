@@ -23,7 +23,7 @@ def random2DVector(
 ) -> pygame.Vector2:
     if x1 is None and x2 is None and y1 is None and y2 is None:
         vect = pygame.Vector2(1, 0)
-        vect.rotate_ip_rad(random.random() * 2 * pi)
+        vect.rotate_rad_ip(random.random() * 2 * pi)
         return vect
     elif x2 is None and y2 is None:
         a = 0
