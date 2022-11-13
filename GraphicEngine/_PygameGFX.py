@@ -30,6 +30,7 @@ import GraphicEngine.shapes as shapes
 from GraphicEngine._baseButton import _BaseButton
 from GraphicEngine._common import _Direction, deprecate
 from GraphicEngine._textInput import _TextInput
+from GraphicEngine._processColor import getColor_Int
 
 warnings.simplefilter("once", category=(PendingDeprecationWarning, DeprecationWarning))
 
@@ -237,7 +238,7 @@ class PygameGFX(ABC):
             else:
                 self.FramePerSec.tick()
 
-    def background(self, r: int, g: int = None, b: int = None, a: int = None):
+    def background(self, color: pygame._common._ColorValue):
         def bg_2d(r: int, g: int, b: int):
             self.__displaySufrace.fill((r, g, b))
 
@@ -256,24 +257,14 @@ class PygameGFX(ABC):
             glEnable(GL_LINE_SMOOTH)
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
+        r, g, b, a = getColor_Int(color)
+
         if pygame.OPENGL & self.__flags == pygame.OPENGL:
-            if g and b and not a:
-                bg_3d(r, g, b, 0)
-            elif g and b and a:
-                bg_3d(r, g, b, a)
-            elif g:
-                bg_3d(r, r, r, a)
-            else:
-                bg_3d(r, r, r, 0)
+            bg_3d(r, g, b, a)
+        elif a != 0:
+            bg_2d_transparent(r, g, b, a)
         else:
-            if g and b and not a:
-                bg_2d(r, g, b)
-            elif g and b and a:
-                bg_2d_transparent(r, g, b, a)
-            elif g:
-                bg_2d_transparent(r, r, r, g)
-            else:
-                bg_2d(r, r, r)
+            bg_2d(r, g, b)
 
     def setFont(self, fontName: str | None = None, fontSize: int = 24):
         self.__font = pygame.font.SysFont(fontName, fontSize)
@@ -290,7 +281,9 @@ class PygameGFX(ABC):
             self.DisplaySurface, self.__font, text, color, position, allowedWidth
         )
 
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Pixel().")
+    @deprecate(
+        "This function will be deprecated in the future. Use drawShapes.Pixel()."
+    )
     def drawPixel(
         self, color: pygame._common._ColorValue | float, pos: pygame._common._Coordinate
     ):
@@ -309,7 +302,9 @@ class PygameGFX(ABC):
             self.DisplaySurface, rect, color, startAngle, stopAngle, width
         )
 
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Circle().")
+    @deprecate(
+        "This function will be deprecated in the future. Use drawShapes.Circle()."
+    )
     def drawCircle(
         self,
         center: pygame._common._Coordinate,
@@ -319,7 +314,9 @@ class PygameGFX(ABC):
     ):
         self.drawShapes.Circle(self.DisplaySurface, center, radius, color, width)
 
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Ellipse().")
+    @deprecate(
+        "This function will be deprecated in the future. Use drawShapes.Ellipse()."
+    )
     def drawEllipse(
         self, rect: pygame.Rect, color: pygame._common._ColorValue, width: int = 0
     ):
