@@ -1,5 +1,6 @@
 from __future__ import annotations
 import pygame
+from GraphicEngine._processColor import getColor_Int
 
 
 def Text(
@@ -28,7 +29,7 @@ def Text(
         textX = position[0]  # - fontWidth/2 Center
         textY = position[1] + y_offset
         display.blit(
-            font.render(line, True, color), (textX, textY)
+            font.render(line, True, getColor_Int(color)), (textX, textY)
         )
         y_offset += fontHeight
     return position[1] + y_offset

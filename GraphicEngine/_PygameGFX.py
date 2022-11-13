@@ -45,6 +45,10 @@ class PygameGFX(ABC):
         return self.__height
 
     @property
+    def Font(self):
+        return self.__font
+
+    @property
     def IsRunning(self):
         return self.__running
 
@@ -233,7 +237,7 @@ class PygameGFX(ABC):
             surface = pygame.Surface((self.Width, self.Height), pygame.SRCALPHA)
             pygame.draw.rect(
                 surface,
-                (r, g, b, g),
+                (r, g, b, a),
                 pygame.Rect(0, 0, self.Width, self.Height),
             )
             self.__displaySufrace.blit(surface, (0, 0))
