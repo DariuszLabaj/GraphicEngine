@@ -7,6 +7,28 @@ from GraphicEngine.constrain import constrain
 from GraphicEngine.mathMap import mathMap
 from GraphicEngine.random2DVector import random2DVector
 from GraphicEngine._baseButton import _BaseButton
+import GraphicEngine.shapes as shapes
+from OpenGL.GL import (
+    glClearColor,
+    glClear,
+    glEnable,
+    glHint,
+    glClearDepth,
+    glDepthFunc,
+    glShadeModel,
+    glRotatef,
+    glTranslatef,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_LINE_SMOOTH,
+    GL_LINE_SMOOTH_HINT,
+    GL_NICEST,
+    GL_LESS,
+    GL_SMOOTH,
+    GL_DEPTH_TEST,
+)
+from OpenGL.GLU import gluPerspective
+
 from GraphicEngine._textInput import _TextInput
 
 
@@ -18,6 +40,8 @@ class PygameGFX(ABC):
     __running: bool
     __fps: int
     __keyCode: int
+    fieldOfView: int = 45
+    drawShapes = shapes
 
     @property
     def DisplaySurface(self):
@@ -43,6 +67,10 @@ class PygameGFX(ABC):
     def mousePosition(self):
         self.__mousePosition = pygame.mouse.get_pos()
         return self.__mousePosition
+
+    @property
+    def aspectRatio(self):
+        return self.Width / self.Height
 
     class Button(_BaseButton):
         def __init__(
@@ -104,21 +132,23 @@ class PygameGFX(ABC):
         height: int = 0,
         caption: Optional[str] = None,
         fps: Optional[int] = None,
+        flags: int = pygame.SRCALPHA,
     ) -> None:
         self.__running = True
+        self.__flags = pygame.DOUBLEBUF | flags
         if height and width:
             self.__displaySufrace = pygame.display.set_mode(
-                (width, height), pygame.SRCALPHA
+                (width, height), self.__flags
             )
             self.__height = height
             self.__width = width
         else:
             self.__displaySufrace = pygame.display.set_mode(
-                (0, 0), pygame.SRCALPHA, pygame.FULLSCREEN
+                (0, 0), self.__flags, pygame.FULLSCREEN
             )
             self.__height = self.__displaySufrace.get_width()
             self.__width = self.__displaySufrace.get_height()
-        self.__fps = fps
+        self.__fps = fps if fps is not None else 60
         self.FramePerSec = pygame.time.Clock()
         if caption:
             pygame.display.set_caption(caption)
@@ -152,32 +182,96 @@ class PygameGFX(ABC):
     def Stop(self):
         self.__running = False
 
+    def setPerspective(
+        self, fieldOfView: int = None, near: float = 0.1, far: float = 100.0
+    ):
+        """
+        Only for OpenGL
+        """
+        if pygame.OPENGL & self.__flags != pygame.OPENGL:
+            return
+        if fieldOfView:
+            self.fieldOfView = fieldOfView
+        nearVal = 0.1 if near is None else near
+        farVal = 100 if far is None else far
+        gluPerspective(self.fieldOfView, self.aspectRatio, nearVal, farVal)
+
+    def translate(self, x: float, y: float, z: float):
+        """
+        Only for OpenGL now
+        """
+        glTranslatef(x, y, z)
+
+    def rotate(
+        self,
+        angle: float,
+        x: Literal[-1, 0, 1],
+        y: Literal[-1, 0, 1],
+        z: Literal[-1, 0, 1],
+    ):
+        """
+        Only for OpenGL now
+        """
+        if pygame.OPENGL & self.__flags != pygame.OPENGL:
+            return
+        glRotatef(angle, x, y, z)
+
     def Run(self):
         pygame.init()
         self.setFont()
+        if pygame.OPENGL & self.__flags == pygame.OPENGL:
+            glClearDepth(1.0)
+            glDepthFunc(GL_LESS)
+            glEnable(GL_DEPTH_TEST)
+            glShadeModel(GL_SMOOTH)
         self.Setup()
         while self.IsRunning:
             self._checkForEvents()
             self.Draw()
-            pygame.display.update()
+            pygame.display.flip()
+            pygame.time.wait(int(1000 / self.__fps))
             if self.__fps:
                 self.FramePerSec.tick(self.__fps)
             else:
                 self.FramePerSec.tick()
 
-    def background(self, r: int, g: int = None, b: int = None):
-        if g and b:
+    def background(self, r: int, g: int = None, b: int = None, a: int = None):
+        def bg_2d(r: int, g: int, b: int):
             self.__displaySufrace.fill((r, g, b))
-        elif g:
+
+        def bg_2d_transparent(r: int, g: int, b: int, a: int):
             surface = pygame.Surface((self.Width, self.Height), pygame.SRCALPHA)
             pygame.draw.rect(
                 surface,
-                (r, r, r, g),
+                (r, g, b, g),
                 pygame.Rect(0, 0, self.Width, self.Height),
             )
             self.__displaySufrace.blit(surface, (0, 0))
+
+        def bg_3d(r: int, g: int, b: int, a: int):
+            glClearColor(r / 255, g / 255, b / 255, a / 255)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            glEnable(GL_LINE_SMOOTH)
+            glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
+
+        if pygame.OPENGL & self.__flags == pygame.OPENGL:
+            if g and b and not a:
+                bg_3d(r, g, b, 0)
+            elif g and b and a:
+                bg_3d(r, g, b, a)
+            elif g:
+                bg_3d(r, r, r, a)
+            else:
+                bg_3d(r, r, r, 0)
         else:
-            self.__displaySufrace.fill((r, r, r))
+            if g and b and not a:
+                bg_2d(r, g, b)
+            elif g and b and a:
+                bg_2d_transparent(r, g, b, a)
+            elif g:
+                bg_2d_transparent(r, r, r, g)
+            else:
+                bg_2d(r, r, r)
 
     def setFont(self, fontName: str | None = None, fontSize: int = 24):
         self.__font = pygame.font.SysFont(fontName, fontSize)
@@ -307,11 +401,11 @@ class PygameGFX(ABC):
 
     @abstractmethod
     def Setup(self):
-        print(f"{__name__}\\Setup test")
+        ...
 
     @abstractmethod
     def Draw(self):
-        print(f"{__name__}\\Draw test")
+        ...
 
 
 if __name__ == "__main__":
