@@ -5,16 +5,30 @@ from abc import ABC, abstractmethod
 from typing import Callable, Literal, Optional, Tuple
 
 import pygame
-from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST,
-                       GL_LESS, GL_LINE_SMOOTH, GL_LINE_SMOOTH_HINT, GL_NICEST,
-                       GL_SMOOTH, glClear, glClearColor, glClearDepth,
-                       glDepthFunc, glEnable, glHint, glRotatef, glShadeModel,
-                       glTranslatef)
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_LESS,
+    GL_LINE_SMOOTH,
+    GL_LINE_SMOOTH_HINT,
+    GL_NICEST,
+    GL_SMOOTH,
+    glClear,
+    glClearColor,
+    glClearDepth,
+    glDepthFunc,
+    glEnable,
+    glHint,
+    glRotatef,
+    glShadeModel,
+    glTranslatef,
+)
 from OpenGL.GLU import gluPerspective
 
 import GraphicEngine.shapes as shapes
 from GraphicEngine._baseButton import _BaseButton
-from GraphicEngine._common import _Direction, deprecate
+from GraphicEngine._common import _Direction
 from GraphicEngine._processColor import getColor_Int
 from GraphicEngine._textInput import _TextInput
 
@@ -259,87 +273,6 @@ class PygameGFX(ABC):
 
     def setFont(self, fontName: str | None = None, fontSize: int = 24):
         self.__font = pygame.font.SysFont(fontName, fontSize)
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Text().")
-    def drawText(
-        self,
-        text: str,
-        color: pygame._common._ColorValue,
-        position: pygame._common._Coordinate = (20, 20),
-        allowedWidth: int = None,
-    ):
-        return self.drawShapes.Text(
-            self.DisplaySurface, self.__font, text, color, position, allowedWidth
-        )
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Pixel().")
-    def drawPixel(
-        self, color: pygame._common._ColorValue | float, pos: pygame._common._Coordinate
-    ):
-        self.drawShapes.Pixel(self.DisplaySurface, color, pos)
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Arc().")
-    def drawArc(
-        self,
-        rect: pygame.Rect,
-        color: pygame._common._ColorValue,
-        startAngle: float,
-        stopAngle: float,
-        width: int = 1,
-    ):
-        self.drawShapes.Arc(
-            self.DisplaySurface, rect, color, startAngle, stopAngle, width
-        )
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Circle().")
-    def drawCircle(
-        self,
-        center: pygame._common._Coordinate,
-        radius: float,
-        color: pygame._common._ColorValue,
-        width: int = 0,
-    ):
-        self.drawShapes.Circle(self.DisplaySurface, center, radius, color, width)
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Ellipse().")
-    def drawEllipse(
-        self, rect: pygame.Rect, color: pygame._common._ColorValue, width: int = 0
-    ):
-        self.drawShapes.Ellipse(self.DisplaySurface, rect, color, width)
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Line().")
-    def drawLine(
-        self,
-        startPos: pygame._common._Coordinate,
-        endPos: pygame._common._Coordinate,
-        color: pygame._common._ColorValue,
-        width: int = 1,
-    ):
-        self.drawShapes.Line(self.DisplaySurface, startPos, endPos, color, width)
-
-    @deprecate("This function will be deprecated in the future. Use drawShapes.Rect().")
-    def drawRect(
-        self,
-        rect: pygame.Rect,
-        color: pygame._common._ColorValue,
-        width: int = 0,
-        borderRadius: int = -1,
-        borderTopLeftRadius: int = -1,
-        borderTopRightRadius: int = -1,
-        borderBottomLeftRadius: int = -1,
-        borderBottmRightRadius: int = -1,
-    ):
-        self.drawShapes.Rect(
-            self.DisplaySurface,
-            rect,
-            color,
-            width,
-            borderRadius,
-            borderTopLeftRadius,
-            borderTopRightRadius,
-            borderBottomLeftRadius,
-            borderBottmRightRadius,
-        )
 
     def keyPressed(self):
         pass
