@@ -1,3 +1,6 @@
+from __future__ import annotations
+from GraphicEngine._processColor import getColor_float
+import pygame
 from typing import Tuple, List
 from OpenGL.GL import (
     glBegin,
@@ -15,7 +18,7 @@ from OpenGL.GL import (
 def Cube(
     position: Tuple[int, int, int] | int,
     size: Tuple[int, int, int] | int,
-    colors: List[Tuple[int, int, int]] | Tuple[int, int, int] | int,
+    colors: List[pygame._common._ColorValue] | pygame._common._ColorValue,
     border: float = 0.0
 ):
     def CalculateVertices(cubePositon: Tuple[int, int, int], cubeSize: Tuple[int, int, int]):
@@ -45,17 +48,9 @@ def Cube(
     cubeColors: List[Tuple[float, float, float]] = [(0.0, 0.0, 0.0)]*6
     if isinstance(colors, list):
         for i, color in enumerate(colors):
-            cubeColors[i] = [(
-                (color[0] / 255, color[1] / 255, color[2] / 255)
-                if isinstance(color, tuple) and len(color) == 3
-                else (color / 255, color / 255, color / 255)
-            )]
+            cubeColors[i] = getColor_float(color, False)
     else:
-        cubeColors = [(
-            (colors[0] / 255, colors[1] / 255, colors[2] / 255)
-            if isinstance(colors, tuple) and len(colors) == 3
-            else (colors / 255, colors / 255, colors / 255)
-        )]*6
+        cubeColors = [getColor_float(colors, False)]*6
     vertices = CalculateVertices(cubePositon, cubeSize)
     if not border:
         glShadeModel(GL_FLAT)
