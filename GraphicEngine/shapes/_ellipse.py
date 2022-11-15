@@ -1,9 +1,10 @@
 from __future__ import annotations
+import GraphicEngine._common as _common
 import pygame
 
 
 def Ellipse(
-    display: pygame.Surface, rect: pygame.Rect, color: pygame._common._ColorValue, width: int = 0
+    display: pygame.Surface, rect: pygame.Rect, color: _common.ColorValue, width: int = 0
 ):
     surface = pygame.Surface(rect.size, pygame.SRCALPHA)
     pygame.draw.ellipse(

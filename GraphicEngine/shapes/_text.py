@@ -1,22 +1,25 @@
 from __future__ import annotations
+import math
+from typing import Optional
 import pygame
 from GraphicEngine._processColor import getColor_Int
+import GraphicEngine._common as _common
 
 
 def Text(
     display: pygame.Surface,
     font: pygame.font.Font,
     text: str,
-    color: pygame._common._ColorValue,
-    position: pygame._common._Coordinate = (20, 20),
-    allowedWidth: int = None,
+    color: _common.ColorValue,
+    position: _common.Coordinate = (20, 20),
+    allowedWidth: Optional[int] = None,
 ):
     if allowedWidth is None:
-        allowedWidth = display.get_width() - position[0] - 10
+        allowedWidth = math.floor(display.get_width() - position[0] - 10)
     words = text.split()
-    lines = []
+    lines: list[str] = []
     while len(words) > 0:
-        line_words = []
+        line_words: list[str] = []
         while len(words) > 0:
             line_words.append(words.pop(0))
             fontWidth, _ = font.size(" ".join(line_words + words[:1]))

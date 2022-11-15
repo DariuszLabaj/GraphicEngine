@@ -1,13 +1,17 @@
 from __future__ import annotations
+
 from enum import Enum, auto
 from functools import cached_property
-from typing import Callable, Literal
+from typing import Callable, Literal, Optional
+
 import pygame
 
+import GraphicEngine._common as _common
 
-class _BaseButton:
-    __currentState: _BaseButton.State
-    __lastState: _BaseButton.State
+
+class BaseButtonAbstract:
+    __currentState: BaseButtonAbstract.State
+    __lastState: BaseButtonAbstract.State
 
     class State(Enum):
         Normal = auto()
@@ -23,53 +27,53 @@ class _BaseButton:
             return False
 
     @property
-    def __color(self) -> pygame._common._ColorValue:
+    def __color(self) -> _common.ColorValue:
         color = (0, 0, 0)
         match self.__currentState:
-            case _BaseButton.State.Normal:
+            case BaseButtonAbstract.State.Normal:
                 color = self.__background
-            case _BaseButton.State.Pressed:
+            case BaseButtonAbstract.State.Pressed:
                 color = self.__activeBackground
-            case _BaseButton.State.Disabled:
+            case BaseButtonAbstract.State.Disabled:
                 color = (51, 51, 51)
         return color
 
     @property
-    def __textColor(self) -> pygame._common._ColorValue:
+    def __textColor(self) -> _common.ColorValue:
         color = (0, 0, 0)
         match self.__currentState:
-            case _BaseButton.State.Normal:
+            case BaseButtonAbstract.State.Normal:
                 color = self.__foreground
-            case _BaseButton.State.Pressed:
+            case BaseButtonAbstract.State.Pressed:
                 color = self.__activeForeground
-            case _BaseButton.State.Disabled:
+            case BaseButtonAbstract.State.Disabled:
                 color = (180, 180, 180)
         return color
 
     @property
-    def Center(self) -> pygame._common._Coordinate:
+    def Center(self) -> _common.Coordinate:
         return self.__rect.center
 
     @property
-    def __textCenter(self) -> pygame._common._Coordinate:
+    def __textCenter(self) -> _common.Coordinate:
         return self.__btnRect.center
 
     @cached_property
-    def __btnRect(self) -> pygame._common._RectValue:
+    def __btnRect(self) -> pygame.Rect:
         return pygame.Rect(0, 0, self.__rect.width, self.__rect.height)
 
     def __init__(
         self,
         surface: pygame.Surface,
-        rect: pygame._common._RectValue,
+        rect: pygame.Rect,
         command: Callable[[], None] | None = None,
-        background: pygame._common._ColorValue = (255, 255, 255),
-        foreground: pygame._common._ColorValue = (0, 0, 0),
-        activeBackground: pygame._common._ColorValue = (51, 51, 51),
-        activeForeground: pygame._common._ColorValue = (255, 255, 255),
+        background: _common.ColorValue = (255, 255, 255),
+        foreground: _common.ColorValue = (0, 0, 0),
+        activeBackground: _common.ColorValue = (51, 51, 51),
+        activeForeground: _common.ColorValue = (255, 255, 255),
         label: str = "Button",
         justify: Literal["LEFT"] | Literal["CENTER"] | Literal["RIGHT"] = "CENTER",
-        font: pygame.font.Font = None,
+        font: Optional[pygame.font.Font] = None,
         padx: int = 0,
         pady: int = 0,
     ):
@@ -84,13 +88,13 @@ class _BaseButton:
         if font:
             self.__font = font
         else:
-            self.__font = pygame.font.SysFont(None, 16)
+            self.__font = pygame.font.SysFont('', 16)
         self.__padx = padx
         self.__pady = pady
         self.__command = command
         self.__radius = 5 if self.__rect.width > 10 and self.__rect.height > 10 else -1
-        self.__currentState = _BaseButton.State.Normal
-        self.__lastState = _BaseButton.State.Disabled
+        self.__currentState = BaseButtonAbstract.State.Normal
+        self.__lastState = BaseButtonAbstract.State.Disabled
         self.__autoRelease = True
         self.__createButtonSurface()
 
@@ -103,9 +107,9 @@ class _BaseButton:
     def __prepareText(self):
         labelWidth, labelHeight = self.__font.size(self.__label)
         match self.__justify:
-            case 'RIGHT':
+            case "RIGHT":
                 textX = self.__btnRect.width - labelWidth + self.__padx
-            case 'CENTER':
+            case "CENTER":
                 textX = self.__textCenter[0] - labelWidth / 2 + self.__padx
             case _:
                 textX = self.__padx
@@ -113,15 +117,24 @@ class _BaseButton:
         return self.__font.render(self.__label, True, self.__textColor), textX, textY
 
     def update(self):
-        if self.__currentState == self.__lastState == _BaseButton.State.Disabled:
+        if self.__currentState == self.__lastState == BaseButtonAbstract.State.Disabled:
             return
         mouseEvents = pygame.mouse.get_pressed()
-        if self.__command and mouseEvents[0] and self.__rect.collidepoint(pygame.mouse.get_pos()):
-            if self.__currentState != _BaseButton.State.Pressed:
-                self.__currentState = _BaseButton.State.Pressed
+        if (
+            self.__command
+            and mouseEvents[0]
+            and self.__rect.collidepoint(pygame.mouse.get_pos())
+        ):
+            if self.__currentState != BaseButtonAbstract.State.Pressed:
+                self.__currentState = BaseButtonAbstract.State.Pressed
                 self.__command()
-        elif self.__autoRelease and self.__currentState == self.__lastState == _BaseButton.State.Pressed:
-            self.__currentState = _BaseButton.State.Normal
+        elif (
+            self.__autoRelease
+            and self.__currentState
+            == self.__lastState
+            == BaseButtonAbstract.State.Pressed
+        ):
+            self.__currentState = BaseButtonAbstract.State.Normal
 
     def show(self):
         if self.__stateChanged:

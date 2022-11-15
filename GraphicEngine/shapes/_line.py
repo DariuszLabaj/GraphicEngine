@@ -1,17 +1,18 @@
 from __future__ import annotations
 import pygame
+import GraphicEngine._common as _common
 from math import ceil
 
 
 def Line(
     display: pygame.Surface,
-    startPos: pygame._common._Coordinate,
-    endPos: pygame._common._Coordinate,
-    color: pygame._common._ColorValue,
+    startPos: _common.Coordinate,
+    endPos: _common.Coordinate,
+    color: _common.ColorValue,
     width: int = 1,
 ):
     def getVector2d(
-        startPos: pygame._common._Coordinate, endPos: pygame._common._Coordinate
+        startPos: _common.Coordinate, endPos: _common.Coordinate
     ):
         if isinstance(startPos, tuple) and len(startPos) >= 2:
             v1 = pygame.Vector2(startPos[0], startPos[1])
@@ -19,7 +20,7 @@ def Line(
             v1 = startPos
         else:
             v1 = pygame.Vector2(0, 0)
-        if isinstance(endPos, tuple) and len(startPos) >= 2:
+        if isinstance(endPos, tuple) and len(endPos) >= 2:
             v2 = pygame.Vector2(endPos[0], endPos[1])
         elif isinstance(endPos, pygame.Vector2):
             v2 = endPos

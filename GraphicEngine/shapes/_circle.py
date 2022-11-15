@@ -1,15 +1,16 @@
 from __future__ import annotations
+import GraphicEngine._common as _common
 import pygame
 
 
 def Circle(
     display: pygame.Surface,
-    center: pygame._common._Coordinate,
+    center: _common.Coordinate,
     radius: float,
-    color: pygame._common._ColorValue,
+    color: _common.ColorValue,
     width: int = 0,
 ):
-    def getVector2d(Pos: pygame._common._Coordinate):
+    def getVector2d(Pos: _common.Coordinate):
         if isinstance(Pos, tuple) and len(Pos) >= 2:
             v1 = pygame.Vector2(Pos[0], Pos[1])
         elif isinstance(Pos, pygame.Vector2):
