@@ -1,5 +1,5 @@
 from math import pi
-from typing import overload
+from typing import Optional, overload
 
 
 import pygame
@@ -19,7 +19,7 @@ def random2DVector(x1: float, y1: float) -> pygame.Vector2:
 
 
 def random2DVector(
-    x1: float = None, y1: float = None, x2: float = None, y2: float = None
+    x1: Optional[float] = None, y1: Optional[float] = None, x2: Optional[float] = None, y2: Optional[float] = None
 ) -> pygame.Vector2:
     if x1 is None and x2 is None and y1 is None and y2 is None:
         vect = pygame.Vector2(1, 0)
@@ -36,6 +36,8 @@ def random2DVector(
         c = x2
         d = y2
     else:
+        raise ValueError()
+    if b is None or d is None:
         raise ValueError()
     rng = random.Random()
     return pygame.Vector2(

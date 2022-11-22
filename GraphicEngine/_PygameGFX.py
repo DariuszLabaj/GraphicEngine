@@ -5,41 +5,28 @@ from abc import ABC, abstractmethod
 from typing import Callable, Literal, Optional, Tuple
 
 import pygame
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_LESS,
-    GL_LINE_SMOOTH,
-    GL_LINE_SMOOTH_HINT,
-    GL_NICEST,
-    GL_SMOOTH,
-    glClear,
-    glClearColor,
-    glClearDepth,
-    glDepthFunc,
-    glEnable,
-    glHint,
-    glRotatef,
-    glShadeModel,
-    glTranslatef,
-)
-from OpenGL.GLU import gluPerspective
+from OpenGL.GL import glTranslatef  # type: ignore
+from OpenGL.GL import (GL_COLOR_BUFFER_BIT,  # type: ignore
+                       GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_LESS,  # type: ignore
+                       GL_LINE_SMOOTH, GL_LINE_SMOOTH_HINT, GL_NICEST,  # type: ignore
+                       GL_SMOOTH, glClear, glClearColor, glClearDepth,  # type: ignore
+                       glDepthFunc, glEnable, glHint, glRotatef, glShadeModel)  # type: ignore
+from OpenGL.GLU import gluPerspective  # type: ignore
 
+import GraphicEngine._common as _common
 import GraphicEngine.shapes as shapes
-from GraphicEngine._baseButton import _BaseButton
-from GraphicEngine._common import _Direction
+from GraphicEngine._baseButton import BaseButtonAbstract
 from GraphicEngine._processColor import getColor_Int
-from GraphicEngine._textInput import _TextInput
+from GraphicEngine._textInput import TextInputAbstract
 
-warnings.simplefilter("once", category=(PendingDeprecationWarning, DeprecationWarning))
+warnings.simplefilter("once", category=(PendingDeprecationWarning, DeprecationWarning))  # type: ignore
 
 
 class PygameGFX(ABC):
     __height: int
     __width: int
     __mousePosition: Tuple[int, int]
-    __displaySufrace: pygame.Surface
+    __displaySufrace: pygame.surface.Surface
     __running: bool
     __fps: int
     __keyCode: int
@@ -79,20 +66,20 @@ class PygameGFX(ABC):
     def aspectRatio(self):
         return self.Width / self.Height
 
-    class Button(_BaseButton):
+    class Button(BaseButtonAbstract):
         def __init__(
             self,
             surface: pygame.Surface,
-            rect: pygame._common._RectValue,
+            rect: pygame.Rect,
             command: Callable[[], None] | None = None,
             label: str = "Button",
             padx: int = 0,
             pady: int = 0,
-            font: str = None,
-            background: pygame._common._ColorValue = (0xEF, 0xEF, 0xEF),
-            foreground: pygame._common._ColorValue = (0x00, 0x00, 0x00),
-            activeBackground: pygame._common._ColorValue = (0x8D, 0x8D, 0x8D),
-            activeForeground: pygame._common._ColorValue = (0x00, 0x00, 0x00),
+            font: Optional[pygame.font.Font] = None,
+            background: _common.ColorValue = (0xEF, 0xEF, 0xEF),
+            foreground: _common.ColorValue = (0x00, 0x00, 0x00),
+            activeBackground: _common.ColorValue = (0x8D, 0x8D, 0x8D),
+            activeForeground: _common.ColorValue = (0x00, 0x00, 0x00),
             justify: Literal["LEFT"] | Literal["CENTER"] | Literal["RIGHT"] = "CENTER",
         ):
             super(PygameGFX.Button, self).__init__(
@@ -116,16 +103,16 @@ class PygameGFX(ABC):
         def show(self):
             super().show()
 
-    class TextInput(_TextInput):
+    class TextInput(TextInputAbstract):
         def __init__(
             self,
             surface: pygame.Surface,
             rect: pygame.Rect,
             text: str,
-            background: pygame._common._ColorValue = (255, 255, 255),
-            foreground: pygame._common._ColorValue = (0, 0, 0),
+            background: _common.ColorValue = (255, 255, 255),
+            foreground: _common.ColorValue = (0, 0, 0),
             justify: Literal["LEFT"] | Literal["CENTER"] | Literal["RIGHT"] = "CENTER",
-            font: pygame.font.Font = None,
+            font: Optional[pygame.font.Font] = None,
             padx: int = 0,
             pady: int = 0,
         ):
@@ -190,7 +177,7 @@ class PygameGFX(ABC):
         self.__running = False
 
     def setPerspective(
-        self, fieldOfView: int = None, near: float = 0.1, far: float = None
+        self, fieldOfView: Optional[int] = None, near: float = 0.1, far: Optional[float] = None
     ):
         """
         Only for OpenGL
@@ -212,9 +199,9 @@ class PygameGFX(ABC):
     def rotate(
         self,
         angle: float,
-        x: _Direction,
-        y: _Direction,
-        z: _Direction,
+        x: _common.Direction,
+        y: _common.Direction,
+        z: _common.Direction,
     ):
         """
         Only for OpenGL now
@@ -228,9 +215,9 @@ class PygameGFX(ABC):
         self.setFont()
         if pygame.OPENGL & self.__flags == pygame.OPENGL:
             glClearDepth(1.0)
-            glDepthFunc(GL_LESS)
-            glEnable(GL_DEPTH_TEST)
-            glShadeModel(GL_SMOOTH)
+            glDepthFunc(GL_LESS)  # type: ignore
+            glEnable(GL_DEPTH_TEST)  # type: ignore
+            glShadeModel(GL_SMOOTH)  # type: ignore
             self.setPerspective()
         self.Setup()
         while self.IsRunning:
@@ -243,7 +230,7 @@ class PygameGFX(ABC):
             else:
                 self.FramePerSec.tick()
 
-    def background(self, color: pygame._common._ColorValue):
+    def background(self, color: _common.ColorValue):
         def bg_2d(r: int, g: int, b: int):
             self.__displaySufrace.fill((r, g, b))
 
@@ -258,11 +245,11 @@ class PygameGFX(ABC):
 
         def bg_3d(r: int, g: int, b: int, a: int):
             glClearColor(r / 255, g / 255, b / 255, a / 255)
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-            glEnable(GL_LINE_SMOOTH)
-            glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+            glEnable(GL_LINE_SMOOTH)  # type: ignore
+            glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)  # type: ignore
 
-        r, g, b, a = getColor_Int(color)
+        r, g, b, a = getColor_Int(color)  # type: ignore
 
         if pygame.OPENGL & self.__flags == pygame.OPENGL:
             bg_3d(r, g, b, a)
@@ -271,7 +258,7 @@ class PygameGFX(ABC):
         else:
             bg_2d(r, g, b)
 
-    def setFont(self, fontName: str | None = None, fontSize: int = 24):
+    def setFont(self, fontName: str = '', fontSize: int = 24):
         self.__font = pygame.font.SysFont(fontName, fontSize)
 
     def keyPressed(self):

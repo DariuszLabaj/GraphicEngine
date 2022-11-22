@@ -1,11 +1,12 @@
 from __future__ import annotations
+import GraphicEngine._common as _common
 import pygame
 
 
 def Rect(
     display: pygame.Surface,
     rect: pygame.Rect,
-    color: pygame._common._ColorValue,
+    color: _common.ColorValue,
     width: int = 0,
     borderRadius: int = -1,
     borderTopLeftRadius: int = -1,

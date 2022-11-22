@@ -1,24 +1,18 @@
 from __future__ import annotations
+
+from typing import List, Tuple
+
+from OpenGL.GL import (GL_FLAT, GL_LINES, GL_QUADS, glBegin, glColor3f, glEnd,  # type: ignore
+                       glLineWidth, glShadeModel, glVertex3f)  # type: ignore
+
+import GraphicEngine._common as _common
 from GraphicEngine._processColor import getColor_float
-import pygame
-from typing import Tuple, List
-from OpenGL.GL import (
-    glBegin,
-    glEnd,
-    glShadeModel,
-    glVertex3f,
-    glColor3f,
-    glLineWidth,
-    GL_LINES,
-    GL_QUADS,
-    GL_FLAT,
-)
 
 
 def Cube(
     position: Tuple[int, int, int] | int,
     size: Tuple[int, int, int] | int,
-    colors: List[pygame._common._ColorValue] | pygame._common._ColorValue,
+    colors: List[_common.ColorValue] | _common.ColorValue,
     border: float = 0.0
 ):
     def CalculateVertices(cubePositon: Tuple[int, int, int], cubeSize: Tuple[int, int, int]):
@@ -48,23 +42,23 @@ def Cube(
     cubeColors: List[Tuple[float, float, float]] = [(0.0, 0.0, 0.0)]*6
     if isinstance(colors, list):
         for i, color in enumerate(colors):
-            cubeColors[i] = getColor_float(color, False)
+            cubeColors[i] = getColor_float(color, False)  # type: ignore
     else:
-        cubeColors = [getColor_float(colors, False)]*6
+        cubeColors = [getColor_float(colors, False)]*6  # type: ignore
     vertices = CalculateVertices(cubePositon, cubeSize)
     if not border:
-        glShadeModel(GL_FLAT)
-        glBegin(GL_QUADS)
+        glShadeModel(GL_FLAT)  # type: ignore
+        glBegin(GL_QUADS)  # type: ignore
         for i, surface in enumerate(surfaces):
             for vertex in surface:
                 glColor3f(*cubeColors[i])
                 glVertex3f(*vertices[vertex])
-        glEnd()
+        glEnd()  # type: ignore
     else:
         glLineWidth(border)
-        glBegin(GL_LINES)
+        glBegin(GL_LINES)  # type: ignore
         glColor3f(*cubeColors[0])
         for edge in edges:
             for vertex in edge:
                 glVertex3f(*vertices[vertex])
-        glEnd()
+        glEnd()  # type: ignore
