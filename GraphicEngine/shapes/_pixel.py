@@ -5,8 +5,9 @@ import pygame
 
 
 def Pixel(
-    display: pygame.Surface,
+    display: pygame.Surface | pygame.surface.Surface,
     color: _common.ColorValue,
     pos: Sequence[int],
 ):
-    display.set_at(pos, color)
+    if not(isinstance(color, tuple) and len(color) == 2):
+        display.set_at(pos, color)

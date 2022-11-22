@@ -34,7 +34,7 @@ Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
 # This typehint is used when a function would return an RGBA tuble
 RgbaOutput = Tuple[int, int, int, int]
-ColorValue = Union[Color, int, str, Tuple[int, int, int], List[int], RgbaOutput]
+ColorValue = Union[Color, int, str, Tuple[int, int, int], Tuple[int, int], List[int], RgbaOutput]
 
 CanBeRect = Union[
     Rect,
