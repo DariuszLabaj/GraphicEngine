@@ -7,7 +7,7 @@ import GraphicEngine._common as _common
 
 
 def Text(
-    display: pygame.Surface,
+    display: pygame.Surface | pygame.surface.Surface,
     font: pygame.font.Font,
     text: str,
     color: _common.ColorValue,
