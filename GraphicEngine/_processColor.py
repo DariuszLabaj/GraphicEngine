@@ -46,7 +46,7 @@ def getColor_Int(
         for var in value:
             if not (isinstance(var, float) or isinstance(var, int)):  # type: ignore
                 raise IncorrectSubType(
-                    f"Incorrect sub type, shuld be int or float but is {type(var)}"
+                    f"Incorrect sub type, should be int or float but is {type(var)}"
                 )
         match len(value):  # type: ignore
             case 1:
@@ -63,7 +63,7 @@ def getColor_Int(
             case 3:
                 r = value[0]
                 g = value[1]
-                b = value[2]
+                b = value[2]  # type: ignore
                 if -1 < r < 256 and -1 < g < 256 and -1 < b < 256:
                     ret = (r, g, b, 0)
                 else:
@@ -71,7 +71,7 @@ def getColor_Int(
             case 4:
                 r = value[0]
                 g = value[1]
-                b = value[2]
+                b = value[2]  # type: ignore
                 a = value[3]  # type: ignore
                 if -1 < r < 256 and -1 < g < 256 and -1 < b < 256 and -1 < a < 256:
                     ret = (r, g, b, a)
